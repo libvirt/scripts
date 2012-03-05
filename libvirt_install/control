@@ -1,0 +1,21 @@
+DOC = """
+Libvirt-install is for libvirt upstream code compile, install testing
+
+http://libvirt.org/git/?p=libvirt.git;a=summary
+libvir-list@redhat.com
+"""
+
+import os
+
+os.environ['LANG'] = 'en_US.UTF-8'
+
+libvirt_install_dir = os.path.join(os.environ['AUTODIR'],'tests/libvirt_install')
+
+
+TIME="MEDIUM"
+NAME = 'libvirt_install'
+TEST_CLASS = 'Virtualization'
+TEST_TYPE= 'client'
+TEST_CATEGORY = 'Acceptance'
+
+job.run_test('libvirt_install')
