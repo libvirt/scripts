@@ -12,6 +12,7 @@ class libvirt_install(test.test):
     success_flag = "/tmp/libvirt_install_success.tmp"
     def setup(self, tarball='libvirt-*.tar.gz'):
         tarpath = utils.unmap_url(self.bindir, tarball)
+        os.chown(tarpath, 0, 0)
         output = os.path.join(self.resultsdir, 'compile.log')
         t_output = open(output, 'w')
         t_cmd = ('rpmbuild -ta %s ' % tarpath)
