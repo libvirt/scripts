@@ -1,3 +1,7 @@
+#
+# Autotest control file for libvirt compile/install. to be installed as
+# /usr/local/autotest.client/tests/libvirt_install/control
+#
 DOC = """
 Libvirt-install is for libvirt upstream code compile, install testing
 
