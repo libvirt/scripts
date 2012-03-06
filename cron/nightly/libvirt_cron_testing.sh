@@ -137,6 +137,9 @@ submit_job()
                 echo "$testsuit :$result_state" | tee -a $logfile
 
                 if echo $result_state | grep "Completed" > /dev/null; then
+                    # sleep 10 secs for testing machine boot
+                    echo "Waiting 1 min for testing machine reboot"
+                    sleep 60
                     if $SSH -l root $MACHINE ls $install_flag > /dev/null; then
                         break
                     else
