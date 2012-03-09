@@ -129,7 +129,7 @@ submit_job()
 
         echo "Checking job status:" | tee -a $logfile
         sleep_time=1
-        while [ 1 ]
+        while true
         do
             running_job=$("$PYTHON" "$cli" job list -r -u autotest --web="$AUTOTEST_SERVER" | sed -n '$p')
             if [ -z "$running_job" ]; then
