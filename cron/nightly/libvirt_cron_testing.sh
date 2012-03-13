@@ -38,7 +38,7 @@ source_dist()
         if [ $? -ne 0 ]; then
             exit 1
         fi
-        ) | tee -a "$logfile"
+        ) >> "$logfile"
         if [ $? -ne 0 ]; then
             return 1
         fi
@@ -59,7 +59,7 @@ git_pull()
         echo "cd $srcdir" | tee -a "$logfile"
         echo "running \"git pull\"..." | tee -a "$logfile"
         (cd "$srcdir"
-         git pull) | tee -a "$logfile"
+         git pull) >> "$logfile"
 
         if [  $? -ne 0 ]; then
             return 1
@@ -97,7 +97,7 @@ machine_check()
 autotest_prepare()
 {
     rm_auto_cmd="rm -rf $autotestdir"
-    "$SSH" -l root "$MACHINE" "$rm_auto_cmd" | tee -a "$logfile"
+    "$SSH" -l root "$MACHINE" "$rm_auto_cmd" >> "$logfile"
     if [ $? -ne 0 ]; then
         return 1
     fi
@@ -119,7 +119,7 @@ submit_job()
                              -m "$MACHINE" \
                              "$TESTNAME($testsuit)" \
                              --web="$AUTOTEST_SERVER"
-        ) | tee -a "$logfile"
+        ) >> "$logfile"
         if [ $? -ne 0 ]; then
             echo "$testsuit submission Failed" | tee -a "$logfile"
             retval=1
