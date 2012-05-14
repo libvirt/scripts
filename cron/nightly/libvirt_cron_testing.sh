@@ -6,16 +6,22 @@ autotestdir="/usr/local/autotest"
 autotestcli=$autotestdir/cli
 targetdir=$autotestdir/client/tests/libvirt_install
 
-logfile="libvirt_autotest_distdir.log"
+logfile="/home/autotest/libvirt_autotest_distdir.log"
 autogen="autogen.sh"
 install_flag="/tmp/libvirt_install_success.tmp"
 PYTHON="/usr/bin/python"
 SSH="/usr/bin/ssh"
 
-AUTOTEST_SERVER="http://10.66.7.19"
+AUTOTEST_SERVER="http://10.16.75.219"
 MACHINE=
 TESTSUITS=
-TESTNAME="libvirt_continuous_tesing"
+TESTNAME="libvirt_continuous_testing"
+
+error_notify()
+{
+    error_message="$1"
+    echo "Error: $error_message" | /usr/bin/mutt -s "libvirt_autotest: Job error -- `date +%Y%m%d`" -a $logfile -- gren@redhat.com
+}
 
 source_dist()
 {
@@ -138,8 +144,8 @@ submit_job()
 
                 if echo "$result_state" | grep "Completed" > /dev/null; then
                     # sleep 10 secs for testing machine boot
-                    echo "Waiting 1 min for testing machine reboot" | tee -a "$logfile"
-                    sleep 60
+                    echo "Waiting 15 min for testing machine reboot" | tee -a "$logfile"
+                    sleep 1000
                     if "$SSH" -l root "$MACHINE" ls "$install_flag" > /dev/null; then
                         break
                     else
@@ -244,6 +250,7 @@ init
 
 if ! machine_check "$MACHINE"; then
     echo "Failed to ping machine $MACHINE" | tee -a "$logfile"
+    error_notify "machine check"
     exit 1
 fi
 
@@ -254,6 +261,7 @@ echo "" >> "$logfile"
 git_pull "$srcdir"
 if [ $? -ne 0 ]; then
     echo "Failed to pull git update" | tee -a "$logfile"
+    error_notify "git pull"
     exit 1
 fi
 echo "Success to git pull" | tee -a "$logfile"
@@ -262,6 +270,7 @@ echo "" >> "$logfile"
 echo "Make distribution..." | tee -a "$logfile"
 source_dist "$srcdir"
 if [ $? -ne 0 ]; then
+    error_notify "make dist"
     echo "Failed to make distribution" | tee -a "$logfile"
     exit 1
 fi
@@ -269,6 +278,7 @@ echo "Success to make distribution" | tee -a "$logfile"
 echo "" >> "$logfile"
 
 if ! dist_check; then
+    error_notify "dist checking"
     echo "No libvirt tarball is produced in $distdir" | tee -a "$logfile"
     exit 1
 fi
@@ -276,6 +286,7 @@ fi
 echo "Copy libvirt tarball to $targetdir" | tee -a "$logfile"
 if ! distribute; then
     echo "Failed to copy libvirt tarball to $targetdir" | tee -a "$logfile"
+    error_notify "tarball copy to $targetdir"
     exit 1
 fi
 echo "Done with copying libvirt tarball" | tee -a "$logfile"
@@ -284,6 +295,7 @@ echo "" >> "$logfile"
 echo "Remove the old autotest on testing machine" | tee -a "$logfile"
 if ! autotest_prepare; then
     echo "Failed to remove $autotestdir on machine $MACHINE" | tee -a "$logfile"
+    error_notify "Removing autotest directory on remote machine"
     exit 1
 fi
 
@@ -293,6 +305,7 @@ echo "" >> "$logfile"
 echo "Testsuit list: $TESTSUITS" | tee -a "$logfile"
 submit_job
 if [ $? -ne 0 ]; then
+    error_notify "Job submit"
     exit 1
 fi
 echo "" >> "$logfile"
