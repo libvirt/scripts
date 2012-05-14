@@ -34,6 +34,11 @@ class libvirt_install(test.test):
         RPMS_dir = os.path.join(self.BUIDROOT, "RPMS/x86_64")
         os.chdir(RPMS_dir)
         rpmballs = os.listdir(RPMS_dir)
+        # remove xen rpmball
+        for item in rpmballs:
+            if 'xen' in item:
+                rpmballs.remove(item)
+
         rpmstr = string.join(rpmballs, " ")
         rpm_install_cmd = "rpm -Uvh %s --force 2>&1" % rpmstr
         cmd_result = utils.system(rpm_install_cmd)
